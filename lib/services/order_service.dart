@@ -109,7 +109,7 @@ class OrderService {
 
   Future<String> getCustomerName(String userId) async {
     final doc = await FirebaseFirestore.instance
-        .collection('users')
+        .collection('customers')
         .doc(userId)
         .get();
 

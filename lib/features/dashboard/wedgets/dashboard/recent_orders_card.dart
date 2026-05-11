@@ -26,13 +26,20 @@ class _RecentOrdersCardState extends State<RecentOrdersCard> {
 
     _loadingUsers[userId] = true;
 
-    final name = await FirebaseFirestore.instance
-        .collection('customers')
-        .doc(userId)
-        .get()
-        .then((doc) => doc['name'] ?? 'عميل');
+    try {
+      print("USER ID: $userId");
 
-    _namesCache[userId] = name;
+      final doc = await FirebaseFirestore.instance
+          .collection('customers')
+          .doc(userId)
+          .get();
+
+      final name = doc.data()?['name'] ?? 'عميل';
+      print("NAME: $name");
+      _namesCache[userId] = name;
+    } catch (e) {
+      _namesCache[userId] = 'عميل';
+    }
 
     if (mounted) {
       setState(() {});
@@ -57,14 +64,12 @@ class _RecentOrdersCardState extends State<RecentOrdersCard> {
           ],
         ),
         padding: const EdgeInsets.all(12),
-
         child: StreamBuilder<QuerySnapshot>(
           stream: FirebaseFirestore.instance
               .collection('orders')
               .orderBy('acceptedAt', descending: true)
               .limit(7)
               .snapshots(),
-
           builder: (context, snapshot) {
             if (snapshot.hasError) {
               return const Text('حدث خطأ');
@@ -136,7 +141,6 @@ class _RecentOrdersCardState extends State<RecentOrdersCard> {
 
                       final userId = data['userId'];
 
-                      // 🔥 تحميل الاسم إذا غير موجود
                       if (!_namesCache.containsKey(userId)) {
                         _loadCustomerName(userId);
                       }
@@ -162,9 +166,7 @@ class _RecentOrdersCardState extends State<RecentOrdersCard> {
                               ),
                               child: const Icon(Icons.shopping_bag_outlined),
                             ),
-
                             const SizedBox(width: 12),
-
                             Expanded(
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -186,18 +188,14 @@ class _RecentOrdersCardState extends State<RecentOrdersCard> {
                                 ],
                               ),
                             ),
-
                             const SizedBox(width: 10),
-
                             Text(
                               "\$${totalValue.toStringAsFixed(2)}",
                               style: const TextStyle(
                                 fontWeight: FontWeight.w700,
                               ),
                             ),
-
                             const SizedBox(width: 10),
-
                             _Status(status: data['status'] ?? 'معلق'),
                           ],
                         ),
