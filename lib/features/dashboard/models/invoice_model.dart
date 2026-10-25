@@ -6,7 +6,6 @@ class InvoiceModel {
   final String orderId;
   final String customerName;
   final double total;
-
   final String paymentMethod; // cash_on_delivery
   final String paymentStatus; // pending / paid / failed
 
